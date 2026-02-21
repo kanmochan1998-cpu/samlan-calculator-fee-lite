@@ -465,7 +465,7 @@ init() {
             for(let i=0; i<7; i++) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
-                const dateStr = d.toISOString().split('T')[0];
+                const dateStr = d.toLocaleDateString('sv-SE'); 
                 const options = { day: 'numeric', month: 'short', year: 'numeric' };
                 const displayStr = i === 0 ? `วันนี้ (${d.toLocaleDateString('th-TH', options)})` : d.toLocaleDateString('th-TH', options);
                 select.innerHTML += `<option value="${dateStr}">${displayStr}</option>`;
@@ -496,7 +496,7 @@ init() {
             document.getElementById('historyOverlay').classList.remove('hidden');
             document.getElementById('historyOverlay').classList.remove('translate-y-full'); // เอาลงมาบรรทัดเดียวกันเลย ไม่ต้องมี setTimeout
 
-            this.currentDate = new Date().toISOString().split('T')[0]; 
+           this.currentDate = new Date().toLocaleDateString('sv-SE');
             const select = document.getElementById('history-date-select');
             if(select) select.value = this.currentDate;
             this.render();
@@ -989,9 +989,11 @@ const paymentModal = {
         el.className = change < 0 ? 'text-3xl font-bold text-red-500' : 'text-3xl font-bold text-emerald-500';
     },
 
-    finish() {
+    async finish() { 
         if (this.received < app.updateTotal()) return alert(translations[app.getCurrentLang()].modalErrorNotEnough);
-        app.history.save(); this.close(); app.reset();
+        await app.history.save();
+        this.close(); 
+        app.reset();
     }
 };
 
