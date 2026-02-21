@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NP Fee - น้ำตกสามหลั่น</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#10b981">
+    <link rel="apple-touch-icon" href="img/icon.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { primary: '#10b981', secondary: '#3b82f6' },
+                    fontFamily: { sans: ['Kanit', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-slate-200 dark:bg-slate-900 pb-32 min-h-screen">     
+<nav class="fixed top-0 w-full z-50 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+
+        <div class="container mx-auto px-4 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <img src="img/icon.png" class="h-16 w-16 object-contain" onerror="this.style.display='none'">
+                <div>
+                    <h1 id="nav-title" class="font-bold text-2xl leading-tight text-primary">น้ำตกสามหลั่น</h1>
+                    <p id="nav-subtitle" class="text-[10px] text-slate-800 dark:text-slate-400 font-light">National Park Fee</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="app.toggleLanguage()" class="lang-toggle-btn p-2 px-3 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold text-sm hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-100 dark:border-blue-800/50">TH</button>
+                <button onclick="app.reset()" id="btn-reset" class="p-2 px-3 rounded-full bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 font-bold text-sm hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-100 dark:border-red-800/50">รีเซ็ต</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="night-bar" class="fixed top-20 w-full z-40 bg-white dark:bg-slate-900 shadow-md py-2 px-4 hidden  dark:border-b dark:border-slate-800">
+        <div class="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar py-2">
+            <span id="txt-nights" class="text-xs font-bold text-slate-400 dark:text-slate-500 whitespace-nowrap">จำนวนคืน:</span>
+            <div class="flex gap-1" id="night-selector-container"></div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-3 pt-20 mt-1 pb-8" id="items-container"></div>
+
+    <div class="mt-4 pb-20 text-center"> 
+        <div class="w-16 h-px bg-slate-200 dark:bg-slate-700 mx-auto mb-4"></div>
+
+        <div class="flex flex-col gap-1 opacity-80 hover:opacity-100 ">
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+                Desinged & Developed by
+                <span class="text-xs text-slate-500 dark:text-slate-400">Noppakao</span>
+            </p>
+
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 font-light">
+                &copy; 2026 All Rights Reserved. 
+                <br class="block sm:hidden"> Licensed under <span class="font-mono text-slate-500 dark:text-slate-400 border-b border-dotted border-slate-400 cursor-help" title="Permission is hereby granted, free of charge...">MIT License</span>
+            </p>
+
+            <p class="text-[9px] text-slate-400 dark:text-slate-600 mt-2 uppercase tracking-widest">
+                Samlan PWA v1.0 ทดลองใช้ (Build 2026)
+            </p>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 w-full z-50 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 border-t-2 border-slate-300 rounded-t-2xl">
+         <div class="container mx-auto px-4 pt-4 pb-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-700/50">
+            <div class="flex flex-col">
+                <span class="text-[14px] text-slate-500 dark:text-slate-500"><span id="txt-total-items">รายการรวม:</span> <b id="total-count">0</b></span>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-4xl font-black text-emerald-600 dark:text-emerald-400 tracking-tighter" id="total-price">0</span>
+                    <span id="txt-currency-main" class="text-3xl font-bold text-slate-500 dark:text-slate-400">บาท</span>
+                </div>
+            </div>
+            
+            <button onclick="paymentModal.open()" id="btn-main-calc" class="bg-emerald-600 dark:bg-emerald-700 text-white px-8 py-3 rounded-2xl font-black text-2xl w-48 flex items-center justify-center h-14">
+            คิดเงิน
+            </button>
+        </div>
+
+        <div class="container mx-auto px-3 pt-3 pb-6 grid grid-cols-4 gap-2 bg-slate-100 dark:bg-slate-800/50 border-t">
+            <button onclick="app.toggleMenu()" 
+                class="flex flex-col items-center justify-center py-2 rounded-xl border border-slate-200 border-b-4 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-300 shadow-md active:shadow-none active:border-b active:translate-y-0.5 select-none outline-none ring-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mb-0.5 text-slate-400 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <span id="txt-menu" class="text-[9px] font-bold">เมนู</span>
+            </button>
+
+            <button id="btn-c1" 
+                onmousedown="app.startPress('c1')" onmouseup="app.endPress('c1')" onmouseleave="app.endPress('c1')"
+                ontouchstart="app.startPress('c1')" ontouchend="app.endPress('c1')"
+                oncontextmenu="return false;"
+                class="flex flex-col items-center justify-center py-2 rounded-xl border border-slate-200 border-b-4 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-md active:shadow-none active:border-b active:translate-y-0.5 select-none outline-none ring-0">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-0.5">C1</span>
+                <span class="text-[8px] text-slate-400 status-text">ว่าง</span>
+            </button>
+            
+            <button id="btn-c2" 
+                onmousedown="app.startPress('c2')" onmouseup="app.endPress('c2')" onmouseleave="app.endPress('c2')"
+                ontouchstart="app.startPress('c2')" ontouchend="app.endPress('c2')"
+                oncontextmenu="return false;"
+                class="flex flex-col items-center justify-center py-2 rounded-xl border border-slate-200 border-b-4 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-md active:shadow-none active:border-b active:translate-y-0.5 select-none outline-none ring-0">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-0.5">C2</span>
+                <span class="text-[8px] text-slate-400 status-text">ว่าง</span>
+            </button>
+            
+            <button id="btn-c3" 
+                onmousedown="app.startPress('c3')" onmouseup="app.endPress('c3')" onmouseleave="app.endPress('c3')"
+                ontouchstart="app.startPress('c3')" ontouchend="app.endPress('c3')"
+                oncontextmenu="return false;"
+                class="flex flex-col items-center justify-center py-2 rounded-xl border border-slate-200 border-b-4 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-md active:shadow-none active:border-b active:translate-y-0.5 select-none outline-none ring-0">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-0.5">C3</span>
+                <span class="text-[8px] text-slate-400 status-text">ว่าง</span>
+            </button>
+        </div>
+    </div>
+
+<div id="paymentModal" class="fixed inset-0 z-[60] hidden bg-slate-900/95">
+            <div class="flex items-end sm:items-center justify-center min-h-full p-0 sm:p-2">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl h-[95vh] sm:h-auto flex flex-col overflow-hidden" id="modal-panel">
+                <div class="bg-slate-50 dark:bg-slate-700/50 p-4 flex justify-between items-center border-b border-slate-100 dark:border-slate-700">
+                    <div class="flex gap-2">
+                        <button onclick="app.toggleLanguage()" class="lang-toggle-btn p-1.5 px-3 rounded-full bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-300">🇹🇭 TH</button>
+                    </div>
+                    <button onclick="paymentModal.close()" class="bg-slate-200 dark:bg-slate-600 text-slate-500 rounded-full p-2">✕</button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div class="text-center"><span class="text-xl font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full" id="txt-cash-only">⚠️ รับเฉพาะเงินสด</span></div>
+                    <div id="summary-list" class="space-y-2 text-sm"></div>
+                    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl p-6 text-center border border-emerald-100 dark:border-emerald-800">
+                        <p class="text-slate-500 text-sm mb-1" id="txt-total-pay">ยอดที่ต้องชำระ</p>
+                        <h2 class="text-5xl font-extrabold text-emerald-600" id="modal-total-display">0</h2>
+                        <span class="text-emerald-600/70 font-medium" id="modal-currency">THB</span>
+                    </div>
+                    <div id="money-buttons-container" class="grid grid-cols-4 gap-2"></div>
+                    <div class="bg-slate-50 dark:bg-slate-700/30 p-4 rounded-xl flex justify-between items-center">
+                        <div><p class="text-3xl text-blue-600 font-bold" id="txt-received">รับมา</p><p class="text-3xl text-blue-600 font-bold" id="display-received">0</p></div>
+                        <div class="text-right"><p class="text-3xl text-red-600 font-bold" id="txt-change">เงินทอน</p><p class="text-3xl font-extrabold text-red-600" id="display-change">0</p></div>
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
+                    <button onclick="paymentModal.finish()" class="w-full bg-primary text-white font-bold py-4 rounded-2xl shadow-lg text-lg btn-press" id="btn-finish">เสร็จสิ้น</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="historyOverlay" class="fixed inset-0 z-[70] hidden bg-slate-100 dark:bg-slate-900 overflow-y-auto">
+    <div class="sticky top-0 bg-white dark:bg-slate-800 p-4 border-b dark:border-slate-700 flex justify-between items-center z-10">            <h2 id="txt-history-title" class="text-xl font-black text-slate-800 dark:text-white">ประวัติและสรุปยอด</h2>
+            <div class="flex items-center gap-2">
+                <button onclick="app.toggleDarkMode()" class="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 rounded-full w-10 h-10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 text-lg">🌓</button>
+                <button onclick="app.history.close()" class="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 rounded-full w-10 h-10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600">✕</button>
+            </div>
+        </div>
+
+        <div class="p-4 space-y-4">
+            
+            <div class="bg-white/50 dark:bg-slate-800/50 p-3 rounded-2xl border border-white/50 dark:border-slate-700 shadow-sm">
+                <div class="flex w-full gap-2">
+                    <button onclick="app.history.exportPDF()" class="flex-1 flex items-center justify-center gap-1 text-slate-700 text-xs font-bold bg-white border border-slate-300 py-2 rounded-lg hover:bg-slate-50 ">
+                        <span>🖨️</span> <span id="txt-btn-pdf">พิมพ์รายงาน</span>
+                    </button>
+                    <button onclick="app.history.clearAll()" class="flex-1 flex items-center justify-center gap-1 text-red-500 text-xs font-bold bg-white border border-red-200 py-2 rounded-lg hover:bg-red-50 ">
+                        <span>🗑️</span> <span id="txt-btn-clear">ล้างประวัติ</span>
+                    </button>
+                    <button onclick="app.history.exportCSV()" class="flex-1 flex items-center justify-center gap-1 text-blue-600 text-xs font-bold bg-white border border-blue-200 py-2 rounded-lg hover:bg-blue-50">
+                        <span>📄</span> <span id="txt-btn-export">ส่งออก CSV</span>
+                    </button>
+                </div>
+
+                <div class="flex w-full gap-2 mt-2">
+                    <select id="history-date-select" onchange="app.history.changeDate(this.value)" class="flex-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-sm outline-none cursor-pointer">
+                        </select>
+                    <input type="text" id="officer-name" oninput="app.saveOfficerName(this.value)" placeholder="ชื่อผู้บันทึก/รับเงิน (ไม่บังคับ)" class="flex-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-sm outline-none placeholder-slate-400">
+                </div>
+            </div>
+
+            <div id="daily-summary" class="bg-white/80 backdrop-blur dark:bg-slate-800/80 p-4 rounded-2xl border border-white/50 dark:border-slate-700 shadow-sm"></div>
+
+            <div class="bg-white/95 backdrop-blur dark:bg-slate-800/95 p-4 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm mb-2">
+                <h3 class="font-bold text-slate-600 dark:text-slate-300 text-sm mb-3">📈 แนวโน้มนักท่องเที่ยว (วันนี้)</h3>
+                <div class="relative h-48 w-full">
+                    <canvas id="touristChart"></canvas>
+                </div>
+            </div>
+            
+            <div>
+                <h3 id="txt-latest-items" class="font-bold text-slate-600 dark:text-slate-500 text-xl mb-3">รายการล่าสุด</h3>
+                <div id="history-list" class="space-y-3 pb-20"></div>
+            </div>
+
+        </div>
+    </div>
+
+   <div id="print-section" class="hidden font-sans"></div>
+
+    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(() => console.log('Offline Ready'))
+                .catch(err => console.error('SW Error:', err));
+        }
+    </script>
+</body>
+</html>

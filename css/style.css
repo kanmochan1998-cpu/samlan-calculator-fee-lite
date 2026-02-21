@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+body { 
+    font-family: 'Kanit', sans-serif; 
+    -webkit-tap-highlight-color: transparent; 
+}
+
+body { 
+    font-family: 'Kanit', sans-serif; 
+    -webkit-tap-highlight-color: transparent; 
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+
+
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+
+/* ปุ่มถูกปิดใช้งาน (Disabled) */
+.btn-disabled {
+    opacity: 0.3;          /* จางลง */
+    pointer-events: none;  /* ห้ามกด */
+    filter: grayscale(100%); /* ขาวดำ */
+}
+
+
+/* --- Print & PDF Export (A4 Formal) --- */
+@media screen {
+    #print-section {
+        display: none !important;
+    }
+}
+
+@media print {
+    /* ซ่อนหน้าแอปทั้งหมด */
+    body > *:not(#print-section) {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+        margin: 0;
+        padding: 0;
+    }
+
+    #print-section {
+        display: block !important;
+        width: 100%;
+        /* ใช้ padding แทน margin เพื่อทำขอบกระดาษ โดยไม่ให้เบราว์เซอร์แทรกข้อความ */
+        padding: 1.5cm 2cm; 
+        box-sizing: border-box;
+        color: black !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 0; /* คำสั่งสำคัญ: ลบ Header/Footer ขอบกระดาษของเบราว์เซอร์ทิ้ง */
+    }
+}
