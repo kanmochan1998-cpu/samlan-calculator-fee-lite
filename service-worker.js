@@ -1,6 +1,5 @@
 const CACHE_NAME = 'samlan-fee-offline-v3';
 
-// 1. เก็บเฉพาะไฟล์ "ในเครื่อง" เท่านั้น (เอา CDN ของชาวบ้านออกให้หมด เพื่อแก้ปัญหา CORS)
 const PRECACHE_ASSETS = [
   './',
   './index.html',
