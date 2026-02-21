@@ -663,7 +663,9 @@ init() {
                         ${peopleHTML}
                     </div>`;
             }
+            setTimeout(() => {
             this.renderChart(logsToProcess);
+        }, 50);
         },
 
         // ฟังก์ชันวาดกราฟเส้น (รวมคนทั้งหมด พื้นที่สีส้ม)
@@ -699,7 +701,7 @@ init() {
 
             for (let i = minHour; i <= maxHour; i++) {
                 labels.push(`${i}:00`);
-                dataTotal.push(hourlyData[i].total);
+                dataTotal.push(hourlyData[i] ? hourlyData[i].total : 0); 
             }
 
             if (this.chartInstance) this.chartInstance.destroy();
