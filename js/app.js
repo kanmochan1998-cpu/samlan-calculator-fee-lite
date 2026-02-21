@@ -196,15 +196,29 @@ init() {
     },
 
     startPress(id) {
+        const e = window.event;
+        // ถ้าเป็นการทัชหน้าจอ ให้แอปจำไว้ว่าเครื่องนี้เป็นระบบสัมผัส
+        if (e && e.type === 'touchstart') this.isTouch = true;
+        // ถ้ามีสัญญาณเมาส์ผีส่งตามมา ให้บล็อกทิ้ง (return ออกไปเลย)
+        if (e && e.type && e.type.includes('mouse') && this.isTouch) return;
+
         this.isLongPress = false; 
         this.pressTimer = setTimeout(() => {
             this.isLongPress = true; this.savePattern(id);
         }, 800); 
     },
+
     endPress(id) {
+        const e = window.event;
+        // บล็อกสัญญาณเมาส์ผีตอนปล่อยนิ้ว หรือตอนไปกดปุ่มอื่น
+        if (e && e.type && e.type.includes('mouse') && this.isTouch) return;
+
         if (this.pressTimer) { clearTimeout(this.pressTimer); this.pressTimer = null; }
         const btn = document.getElementById(`btn-${id}`); if (btn) btn.blur(); 
-        if (!this.isLongPress) this.usePattern(id);
+        
+        if (!this.isLongPress) {
+            this.usePattern(id);
+        }
         this.isLongPress = false; 
     },
 
@@ -257,7 +271,11 @@ init() {
         this.cartNights = JSON.parse(JSON.stringify(this.patterns[id].nights));
         this.renderItems();
         if (navigator.vibrate) navigator.vibrate(30);
-        paymentModal.open();
+        
+        // เพิ่มตัวหน่วงเวลา 0.3 วินาที ป้องกันบั๊ก "นิ้วกดทะลุ" (Ghost Click) ไปโดนปุ่มเสร็จสิ้น
+        setTimeout(() => {
+            paymentModal.open();
+        }, 300);
     },
 
     reset() {
