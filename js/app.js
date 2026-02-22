@@ -724,7 +724,7 @@ init() {
             });
         },
 
-        // --- ส่งออก CSV (แบบใหม่: คน/คืน + ชื่อเจ้าหน้าที่) ---
+       // --- ส่งออก CSV (แบบใหม่: คน/คืน + ชื่อเจ้าหน้าที่) ---
         async exportCSV() {
             const start = new Date(this.currentDate); start.setHours(0,0,0,0);
             const end = new Date(this.currentDate); end.setHours(23,59,59,999);
@@ -733,11 +733,21 @@ init() {
             if (logs.length === 0) return alert("ยังไม่มีข้อมูลในวันที่เลือกครับ");
             
             const officerName = localStorage.getItem('samlan_officer') || 'ไม่มีชื่อ';
+            const t = translations['th']; // ดึงคำแปลภาษาไทยมาใช้สำหรับหน่วย
             
             let csvContent = "\uFEFF"; 
             let headers = ["ID", "Date", "Time", "Total", "Received", "Change", "Status", "Officer"];
             const itemIds = feeItems.map(item => item.id);
-            const itemNames = feeItems.map(item => `"${item.name_th}"`);
+            
+            // แก้ไขตรงนี้: เพิ่มหน่วย (คน/คืน, หลัง/คืน ฯลฯ) เข้าไปในหัวคอลัมน์ของหมวดที่พักและอุปกรณ์
+            const itemNames = feeItems.map(item => {
+                if (item.type === 'sleep') {
+                    let unitText = t.units[item.unit_key] || 'หน่วย';
+                    return `"${item.name_th} (${unitText}/คืน)"`;
+                }
+                return `"${item.name_th}"`;
+            });
+
             headers = headers.concat(itemNames);
             csvContent += headers.join(",") + "\n";
 
@@ -749,7 +759,7 @@ init() {
                     let qty = log.items[id] || 0;
                     const item = feeItems.find(i => i.id === id);
                     
-                    // ปรับสูตรคน/คืน
+                    // ปรับสูตรคน/คืน (คูณจำนวนคืน)
                     if (item && item.type === 'sleep' && qty > 0) {
                         const nights = log.nights[id] || 1;
                         qty = qty * nights; 
