@@ -50,6 +50,7 @@ const translations = {
         modalChange: 'เงินทอน', modalBtnExact: 'ชำระพอดี (Exact)', modalBtnExactSelected: '✅ ชำระพอดี', modalBtnFinish: 'เสร็จสิ้น',
         modalErrorNoItem: 'กรุณาเลือกรายการก่อนครับ', modalErrorNotEnough: 'เงินไม่พอครับ',
         dailyTotal: 'รายได้รวมวันนี้', dailySleep: 'ที่พัก & ค้างแรม', dailyVehicle: 'ยานพาหนะ (รวม)', dailyPerson: 'บุคคล (รวม)', dailyCampers: 'ผู้ค้างแรม',
+        btnHideRare: 'ซ่อนรายการที่พบไม่บ่อย', btnHidingRare: 'กำลังซ่อนรายการที่พบไม่บ่อย',
         cats: { person: 'บุคคล', vehicle: 'ยานพาหนะ', sleep: 'ค้างแรม & อุปกรณ์', exemption: 'ยกเว้นค่าธรรมเนียม' },
         units: { person: 'คน', vehicle: 'คัน', tent: 'หลัง', bag: 'ใบ', mat: 'แผ่น', pillow: 'ใบ', monk: 'รูป', free: 'ฟรี' }
     },
@@ -62,6 +63,7 @@ const translations = {
         modalChange: 'Change', modalBtnExact: 'Exact Amount', modalBtnExactSelected: '✅ Exact Amount', modalBtnFinish: 'Finish',
         modalErrorNoItem: 'Please select items first.', modalErrorNotEnough: 'Not enough money.',
         dailyTotal: 'Today Revenue', dailySleep: 'Camping & Rentals', dailyVehicle: 'Vehicles (All)', dailyPerson: 'Entrance (All)', dailyCampers: 'Campers',
+        btnHideRare: 'Hide Rare Items', btnHidingRare: 'Hiding Rare Items',
         cats: { person: 'Entrance Fee', vehicle: 'Vehicles', sleep: 'Camping & Rental', exemption: 'Exemptions' },
         units: { person: 'Pax', vehicle: 'Veh', tent: 'Tent', bag: 'Bag', mat: 'Mat', pillow: 'Pc', monk: 'Monk', free: 'Free' }
     },
@@ -74,6 +76,7 @@ const translations = {
         modalChange: '找零', modalBtnExact: '正好金额', modalBtnExactSelected: '✅ 正好金额', modalBtnFinish: '完成',
         modalErrorNoItem: '请先选择项目。', modalErrorNotEnough: '金额不足。',
         dailyTotal: '今日总收入', dailySleep: '住宿 & 租赁', dailyVehicle: '车辆 (全部)', dailyPerson: '门票 (全部)', dailyCampers: '露营者',
+        btnHideRare: '隐藏不常用项目', btnHidingRare: '正在隐藏不常用项目',
         cats: { person: '门票', vehicle: '车辆', sleep: '住宿 & 租赁', exemption: '免票' },
         units: { person: '人', vehicle: '辆', tent: '顶', bag: '个', mat: '张', pillow: '个', monk: '位', free: '免费' }
     }
@@ -153,6 +156,7 @@ init() {
         if(!document.getElementById('paymentModal').classList.contains('hidden')) {
             paymentModal.renderList();
             paymentModal.renderMoneyButtons();
+            paymentModal.updateDisplay();
         }
         if(!document.getElementById('historyOverlay').classList.contains('hidden')) {
             this.history.render();
@@ -355,7 +359,7 @@ init() {
                     ? "px-3 py-1.5 rounded-full text-[10px] font-black bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-md shadow-emerald-200 dark:shadow-none dukdik-active border-0" 
                     : "px-3 py-1.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600 hover:bg-slate-200 active:scale-95 transition-all";
                 
-                const btnText = isHidden ? "กำลังซ่อนรายการที่พบไม่บ่อย" : "ซ่อนรายการที่พบไม่บ่อย";
+                const btnText = isHidden ? t.btnHidingRare : t.btnHideRare;
                 
                 headerHTML += `<button onclick="app.toggleRareItems()" class="${btnStyle}">${btnText}</button>`;
             }
@@ -989,14 +993,33 @@ const paymentModal = {
         this.updateDisplay(); this.renderMoneyButtons();
     },
 
-    updateDisplay() {
+   updateDisplay() {
         const total = app.updateTotal();
         const change = this.received - total;
         document.getElementById('modal-total-display').innerText = total.toLocaleString();
         document.getElementById('display-received').innerText = this.received.toLocaleString();
+        
         const el = document.getElementById('display-change');
-        el.innerText = change < 0 ? `${(total - this.received).toLocaleString()}` : change.toLocaleString();
-        el.className = change < 0 ? 'text-3xl font-bold text-red-500' : 'text-3xl font-bold text-emerald-500';
+        const labelChange = document.getElementById('txt-change'); // ดึงป้ายกำกับมาเพื่อเปลี่ยนข้อความ
+        
+        // กำหนดคำแปลสำหรับคำว่า "ขาดอีก"
+        const lang = app.getCurrentLang();
+        const t = translations[lang];
+        const textMissing = lang === 'th' ? 'ขาดอีก' : (lang === 'en' ? 'Short' : '还差');
+
+        if (change < 0) {
+            // กรณีเงินรับมา "น้อยกว่า" ยอดรวม (ขาดอีก) -> แสดงสีแดง
+            el.innerText = (total - this.received).toLocaleString();
+            el.className = 'text-3xl font-extrabold text-red-500';
+            labelChange.innerText = textMissing;
+            labelChange.className = 'text-3xl text-red-500 font-bold';
+        } else {
+            // กรณีเงินรับมา "พอดี" หรือ "มากกว่า" (เงินทอน) -> แสดงสีเขียว
+            el.innerText = change.toLocaleString();
+            el.className = 'text-3xl font-extrabold text-emerald-500';
+            labelChange.innerText = t.modalChange; // ดึงคำว่า "เงินทอน" หรือ "Change" จาก translations
+            labelChange.className = 'text-3xl text-emerald-500 font-bold';
+        }
     },
 
     async finish() { 
