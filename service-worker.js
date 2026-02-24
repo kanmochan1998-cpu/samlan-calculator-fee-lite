@@ -1,4 +1,4 @@
-const CACHE_NAME = 'samlan-fee-offline-v4';
+const CACHE_NAME = 'samlan-fee-offline-v5';
 
 const PRECACHE_ASSETS = [
   './',
@@ -7,9 +7,13 @@ const PRECACHE_ASSETS = [
   './js/app.js',
   './manifest.json',
   './img/icon.png',
-  'https://cdn.tailwindcss.com',
-  'https://cdn.jsdelivr.net/npm/chart.js',
-  'https://unpkg.com/dexie/dist/dexie.js'
+  './img/logo.png',
+  './js/tailwind-cdn.js',
+  './js/chart.js',
+  './js/dexie.js',
+  './fonts/kanit-v17-latin_thai-regular.woff2',
+  './fonts/kanit-v17-latin_thai-700.woff2',
+  './fonts/sarabun-v17-latin_thai-regular.woff2'
 ];
 
 self.addEventListener('install', event => {

@@ -103,6 +103,7 @@ const app = {
     // 2. เพิ่มฟังก์ชันสลับการซ่อน
     toggleRareItems() {
         this.hideRareItems = !this.hideRareItems;
+        localStorage.setItem('samlan_hide_rare', this.hideRareItems);
         if (navigator.vibrate) navigator.vibrate(20);
         this.renderItems(); // วาดหน้าจอใหม่ทันที
     },
@@ -112,6 +113,10 @@ init() {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
+        }
+
+        if (localStorage.getItem('samlan_hide_rare') !== null) {
+            this.hideRareItems = localStorage.getItem('samlan_hide_rare') === 'true';
         }
 
         this.renderAllText();
@@ -315,6 +320,7 @@ init() {
 
     renderNightButtons() {
         const container = document.getElementById('night-selector-container');
+        if (!container) return;
         container.innerHTML = '';
         [1, 2, 3, 4, 5].forEach(n => {
             const btn = document.createElement('button');
@@ -365,6 +371,17 @@ init() {
             }
             
             headerHTML += `</div>`;
+
+            if (group === 'sleep') {
+                headerHTML += `
+                <div class="bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800/50 rounded-2xl p-3 mb-3 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl">🌙</span>
+                        <span id="txt-nights" class="text-sm font-bold text-blue-800 dark:text-blue-200">${t.nights}</span>
+                    </div>
+                    <div class="flex gap-1.5 overflow-x-auto no-scrollbar" id="night-selector-container"></div>
+                </div>`;
+            }
             section.innerHTML = headerHTML;
             
             const grid = document.createElement('div');
@@ -430,6 +447,7 @@ init() {
             container.appendChild(section);
         });
         this.updateTotal();
+        this.renderNightButtons();
     },
 
     updateTotal() {
@@ -445,11 +463,7 @@ init() {
     },
 
     handleScroll() {
-        const sleepSec = document.getElementById('group-sleep');
-        const bar = document.getElementById('night-bar');
-        if (!sleepSec || !bar) return;
-        const rect = sleepSec.getBoundingClientRect();
-        if (rect.top < 600 && rect.bottom > 100) bar.classList.remove('hidden'); else bar.classList.add('hidden');
+        
     },
 
     toggleMenu() {

@@ -1,6 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
+/* นำเข้าฟอนต์ Kanit */
+@font-face {
+  font-family: 'Kanit';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/kanit-v17-latin_thai-regular.woff2') format('woff2'); 
+}
 
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+@font-face {
+  font-family: 'Kanit';
+  font-style: normal;
+  font-weight: 700;
+  src: url('../fonts/kanit-v17-latin_thai-700.woff2') format('woff2');
+}
+
+/* นำเข้าฟอนต์ Sarabun สำหรับพิมพ์รายงาน */
+@font-face {
+  font-family: 'Sarabun';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/sarabun-v17-latin_thai-regular.woff2') format('woff2');
+}
 
 body { 
     font-family: 'Kanit', sans-serif; 
