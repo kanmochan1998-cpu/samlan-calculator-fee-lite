@@ -1,4 +1,4 @@
-const CACHE_NAME = 'samlan-fee-offline-v5';
+const CACHE_NAME = 'samlan-fee-offline-v5.1';
 
 const PRECACHE_ASSETS = [
   './',
@@ -75,4 +75,5 @@ self.addEventListener('fetch', event => {
       });
     })
   );
+
 });
