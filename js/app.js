@@ -65,7 +65,7 @@ const translations = {
         dailyTotal: 'Today Revenue', dailySleep: 'Camping & Rentals', dailyVehicle: 'Vehicles (All)', dailyPerson: 'Entrance (All)', dailyCampers: 'Campers',
         btnHideRare: 'Hide Rare Items', btnHidingRare: 'Hiding Rare Items',
         cats: { person: 'Entrance Fee', vehicle: 'Vehicles', sleep: 'Camping & Rental', exemption: 'Exemptions' },
-        units: { person: 'Pax', vehicle: 'Veh', tent: 'Tent', bag: 'Bag', mat: 'Mat', pillow: 'Pc', monk: 'Monk', free: 'Free' }
+        units: { person: 'Person(s)', vehicle: 'Qty', tent: 'Qty', bag: 'Qty', mat: 'Qty', pillow: 'Qty', monk: 'Monk(s)', free: 'Free' }
     },
     cn: {
         appTitle: '三兰瀑布', appSubtitle: '国家公园门票', btnReset: '重置',
